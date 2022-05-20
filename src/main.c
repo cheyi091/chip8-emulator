@@ -11,12 +11,37 @@ const char keyboard_map[CHIP8_TOTAL_KEYS] = {
     SDLK_c, SDLK_d, SDLK_e, SDLK_f
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        printf("You must provide a file to load\n");
+        return -1;
+    }
+
+    const char* filename = argv[1];
+    printf("The filename to load is: %s\n", filename);
+
+    FILE* f = fopen(filename, "rb");
+    if(!f) {
+        printf("Failed to open the file");
+        return -1;
+    }
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    char buf[size];
+    int res = fread(buf, size, 1,f);
+    if(res != 1) {
+        printf("Failed to read from file");
+        return -1;
+    }
 
     struct chip8 chip8;
     chip8_init(&chip8);
-    
-    chip8.registers.delay_timer = 255;
+    chip8_load(&chip8, buf, size);
+
+    //chip8_load(&chip8, "Hello world", sizeof("Hello world"));
     chip8_screen_draw_sprite(&chip8.screen, 32, 30, &chip8.memory.memory[0x00], 5);
 
     // Create a window
@@ -84,6 +109,15 @@ int main(int argc, char** argv) {
             Sleep(100);
             chip8.registers.delay_timer -= 1;
         }
+
+        if(chip8.registers.sound_timer > 0) {
+            Beep(12000, 100);
+            chip8.registers.sound_timer -= 1;
+        }
+
+        unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC); // read 2 bytes from memory where PC points to
+        chip8_exec(&chip8, opcode);
+        chip8.registers.PC += 2;
     }
 
 out:
