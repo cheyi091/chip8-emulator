@@ -69,7 +69,7 @@ static void chip8_exec_extended_eight(struct chip8* chip8, unsigned short opcode
             if(tmp > 0xff) {
                 chip8->registers.V[0x0f] = true;
             }
-            chip8->registers.V[x] =tmp;
+            chip8->registers.V[x] = tmp;
         break;
 
         // 8xy5 - SUB Vx, Vy: Set Vx = Vx - Vy, set VF = NOT borrow
@@ -95,8 +95,8 @@ static void chip8_exec_extended_eight(struct chip8* chip8, unsigned short opcode
         break;
 
         // 8xyE - SHL Vx {, Vy}: Set Vx = Vx SHL 1
-        case 0x0E:
-            chip8->registers.V[0x0f] = chip8->registers.V[x] & 0xb0000000;
+        case 0x0e:
+            chip8->registers.V[0x0f] = chip8->registers.V[x] & 0b10000000;
             chip8->registers.V[x] *= 2; 
         break;
     }
@@ -128,7 +128,7 @@ static void chip8_exec_extended_F(struct chip8* chip8, unsigned short opcode) {
         break;
 
         // Fx0A - LD Vx, K: Wait for a key press, store the value of the key in Vx
-        case 0x0A:
+        case 0x0a:
             char pressed_key = chip8_wait_for_key_press(chip8);
             chip8->registers.V[x] = pressed_key;
         break;
@@ -144,7 +144,7 @@ static void chip8_exec_extended_F(struct chip8* chip8, unsigned short opcode) {
         break;
 
         // Fx1E - ADD I, Vx: Set I = I + Vx
-        case 0x1E:
+        case 0x1e:
             chip8->registers.I += chip8->registers.V[x];
         break;
 
@@ -256,7 +256,7 @@ static void chip8_exec_extended(struct chip8* chip8, unsigned short opcode) {
         // Cxkk - RND Vx, byte: Set Vx = random byte AND kk
         case 0xC000:
             srand(clock());
-            chip8->registers.V[x] = (rand() % 255) & kk;
+            chip8->registers.V[x] = (rand() % 256) & kk;
         break;
 
         // Dxyn - DRW Vx, Vy, nibble: Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <windows.h>
+#include <Windows.h>
 #include "SDL2/SDL.h"
 #include "chip8.h"
 #include "chip8keyboard.h"
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
     fseek(f, 0, SEEK_SET);
 
     char buf[size];
-    int res = fread(buf, size, 1,f);
+    int res = fread(buf, size, 1, f);
     if(res != 1) {
         printf("Failed to read from file");
         return -1;
@@ -108,20 +108,19 @@ int main(int argc, char **argv) {
                     r.h = CHIP8_WINDOW_MULTIPLIER;
                     SDL_RenderFillRect(renderer, &r);
                 }
-                
             }
         }
         
         SDL_RenderPresent(renderer);
 
         if(chip8.registers.delay_timer > 0) {
-            Sleep(100);
+            Sleep(1);
             chip8.registers.delay_timer -= 1;
         }
 
         if(chip8.registers.sound_timer > 0) {
             Beep(12000, 100);
-            chip8.registers.sound_timer -= 1;
+            chip8.registers.sound_timer = 0;
         }
 
         // Read instr from memory and execute
