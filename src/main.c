@@ -17,6 +17,7 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    // Read chip8 program file and to buf
     const char* filename = argv[1];
     printf("The filename to load is: %s\n", filename);
 
@@ -40,9 +41,15 @@ int main(int argc, char **argv) {
     struct chip8 chip8;
     chip8_init(&chip8);
     chip8_load(&chip8, buf, size);
+    chip8_keyboard_set_map(&chip8.keyboard, keyboard_map);
 
-    //chip8_load(&chip8, "Hello world", sizeof("Hello world"));
-    chip8_screen_draw_sprite(&chip8.screen, 32, 30, &chip8.memory.memory[0x00], 5);
+    // chip8.registers.PC = 0x00;
+    // chip8.registers.V[0] = 0x00;
+    // chip8.registers.V[1] = 10;
+    // chip8.registers.I = 0x00;
+    // chip8_exec(&chip8, 0xF00A);
+    // printf("%i\n", chip8.registers.V[0]);
+    // printf("%i\n", chip8.registers.V[0x0f]);
 
     // Create a window
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -58,6 +65,7 @@ int main(int argc, char **argv) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_TEXTUREACCESS_TARGET);
 
     while(1) {
+        // Detect keypress and map to chip8 keypress
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
             switch(event.type) {
@@ -66,8 +74,8 @@ int main(int argc, char **argv) {
                 break;
 
                 case SDL_KEYDOWN: {
-                    char key = event.key.keysym.sym; // get the key pressed
-                    int vkey = chip8_keyboard_map(keyboard_map, key);
+                    char key = event.key.keysym.sym;
+                    int vkey = chip8_keyboard_map(&chip8.keyboard, key);
                     if(vkey != -1) {
                         chip8_keyboard_down(&chip8.keyboard, vkey);
                     }
@@ -75,8 +83,8 @@ int main(int argc, char **argv) {
                 break;
 
                 case SDL_KEYUP: {
-                    char key = event.key.keysym.sym; // get the key pressed
-                    int vkey = chip8_keyboard_map(keyboard_map, key);
+                    char key = event.key.keysym.sym;
+                    int vkey = chip8_keyboard_map(&chip8.keyboard, key);
                     if(vkey != -1) {
                         chip8_keyboard_up(&chip8.keyboard, vkey);
                     }
@@ -85,6 +93,7 @@ int main(int argc, char **argv) {
             };
         }
 
+        // Draw on the window
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
@@ -115,9 +124,10 @@ int main(int argc, char **argv) {
             chip8.registers.sound_timer -= 1;
         }
 
+        // Read instr from memory and execute
         unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC); // read 2 bytes from memory where PC points to
-        chip8_exec(&chip8, opcode);
         chip8.registers.PC += 2;
+        chip8_exec(&chip8, opcode);
     }
 
 out:
