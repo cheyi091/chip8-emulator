@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <Windows.h>
+#include <unistd.h>
 #include "SDL2/SDL.h"
 #include "chip8.h"
 #include "chip8keyboard.h"
@@ -114,12 +114,12 @@ int main(int argc, char **argv) {
         SDL_RenderPresent(renderer);
 
         if(chip8.registers.delay_timer > 0) {
-            Sleep(1);
+            usleep(1000);
             chip8.registers.delay_timer -= 1;
         }
 
         if(chip8.registers.sound_timer > 0) {
-            Beep(12000, 100);
+            printf("\a");
             chip8.registers.sound_timer = 0;
         }
 
