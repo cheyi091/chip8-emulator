@@ -1,5 +1,5 @@
 INCLUDES = -I ./include
-FLAGS = -g
+FLAGS = -Wall
 
 OBJECTS=./build/chip8memory.o ./build/chip8stack.o ./build/chip8keyboard.o ./build/chip8.o ./build/chip8screen.o
 all: ${OBJECTS}
@@ -21,4 +21,5 @@ all: ${OBJECTS}
 	gcc ${FLAGS} ${INCLUDES} ./src/chip8screen.c -c -o ./build/chip8screen.o
 
 clean:
-	del build\*
+	rm -f ./build/*
+	rm -f ./bin/main
